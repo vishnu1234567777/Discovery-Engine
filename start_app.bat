@@ -6,13 +6,23 @@ echo    Findora AI E-Commerce Discovery Engine Launcher
 echo =========================================================
 echo.
 
+set PROJECT_DIR=%~dp0
+cd /d "%PROJECT_DIR%"
+
+if not exist "venv" (
+    echo Creating Python virtual environment...
+    python -m venv venv
+    echo Installing backend dependencies...
+    venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+)
+
 echo [1/2] Starting FastAPI Backend Server on http://127.0.0.1:8000...
-start "Findora Backend API" cmd /k "cd /d c:\Users\rprav\OneDrive\Desktop\Discovery-Engine && venv\Scripts\python.exe -m uvicorn app.main:app --reload --app-dir backend --port 8000"
+start "Findora Backend API" cmd /k "cd /d "%PROJECT_DIR%" && venv\Scripts\python.exe -m uvicorn app.main:app --reload --app-dir backend --port 8000"
 
 timeout /t 3 >nul
 
 echo [2/2] Starting React + Vite Frontend App on http://localhost:3000...
-start "Findora Frontend App" cmd /k "cd /d c:\Users\rprav\OneDrive\Desktop\Discovery-Engine\frontend && cmd /c npm run dev"
+start "Findora Frontend App" cmd /k "cd /d "%PROJECT_DIR%frontend" && cmd /c npm install && cmd /c npm run dev"
 
 echo.
 echo =========================================================
