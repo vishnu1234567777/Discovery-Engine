@@ -11,7 +11,7 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
-import { Sparkles, Zap, Flame, Compass, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Zap, Flame, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { recommendationsAPI, productsAPI } from '../services/api';
@@ -26,24 +26,27 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       try {
-        setLoading(true);
         const [twoTowerRes, trendingRes, catRes] = await Promise.all([
           recommendationsAPI.getTwoTower(8),
           recommendationsAPI.getTrending(8),
           productsAPI.getCategories(),
         ]);
-        setTwoTowerRecs(twoTowerRes.data.products || []);
-        setTrending(trendingRes.data || []);
-        setCategories(catRes.data || []);
+        if (isMounted) {
+          setTwoTowerRecs(twoTowerRes.data.products || []);
+          setTrending(trendingRes.data || []);
+          setCategories(catRes.data || []);
+        }
       } catch (err) {
         console.error('Error loading homepage recommendations:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchData();
+    return () => { isMounted = false; };
   }, []);
 
   const sampleQueries = [
@@ -116,7 +119,7 @@ const Home = () => {
 
           {/* Quick AI Search Prompt Pills */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1.5, mb: 4 }}>
-            <Typography variant="caption" sx={{ width: '100%', color: '#64748b', fontWeight: 700, uppercase: true }}>
+            <Typography variant="caption" sx={{ width: '100%', color: '#64748b', fontWeight: 700 }}>
               Try searching natural language queries:
             </Typography>
             {sampleQueries.map((q, idx) => (

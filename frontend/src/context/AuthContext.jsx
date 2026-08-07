@@ -5,22 +5,24 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('findora_token'));
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(() => localStorage.getItem('findora_token'));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     if (token) {
       authAPI.getMe()
         .then((res) => {
-          setUser(res.data);
+          if (isMounted) setUser(res.data);
         })
         .catch(() => {
-          logout();
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+          if (isMounted) {
+            localStorage.removeItem('findora_token');
+            setUser(null);
+          }
+        });
     }
+    return () => { isMounted = false; };
   }, [token]);
 
   const login = async (email, password) => {
